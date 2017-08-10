@@ -23,6 +23,20 @@ public class Dungeon : MonoBehaviour
 
     // Method
 
+    private void CreateWall()
+    {
+        GameObject wall = new GameObject("Wall");
+
+        wall.transform.SetParent(this.gameObject.transform);
+        wall.transform.localScale = new Vector2(0.5f, 100.0f);
+        wall.transform.Translate(new Vector2(-3.0f, 0.0f));
+        wall.AddComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeAll;
+        wall.AddComponent<BoxCollider2D>();
+
+        Instantiate(wall, this.gameObject.transform).GetComponent<Transform>().Translate(new Vector2(6.0f, 0.0f));
+        return;
+    }
+
     private void InitObject()
     {
         for (int i = 0; i < MaxCharacter; i++)
@@ -51,6 +65,7 @@ public class Dungeon : MonoBehaviour
             gMonster[i].GetComponent<SpriteRenderer>().sortingOrder = 1;
             gMonster[i].GetComponent<Monster>().Init();
         }
+        return;
     }
 
     private void SetObject()
@@ -64,19 +79,7 @@ public class Dungeon : MonoBehaviour
             gCharacter[i].GetComponent<Character>().SetMonster(gMonster[0]);
             gCharacter[i].GetComponent<Character>().SetCharacter(gCharacter);
         }
-    }
-
-    private void CreateWall()
-    {
-        GameObject wall = new GameObject("Wall");
-
-        wall.transform.SetParent(this.gameObject.transform);
-        wall.transform.localScale = new Vector2(0.5f, 100.0f);
-        wall.transform.Translate(new Vector2(-3.0f, 0.0f));
-        wall.AddComponent<Rigidbody2D>().constraints = RigidbodyConstraints2D.FreezeAll;
-        wall.AddComponent<BoxCollider2D>();
-
-        Instantiate(wall, this.gameObject.transform).GetComponent<Transform>().Translate(new Vector2(6.0f, 0.0f));
+        return;
     }
 
     // -- Set --

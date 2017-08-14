@@ -8,4 +8,9 @@ public class DungeonManager : Singleton<DungeonManager>
     {
         
     }
+
+    public void SetDungeon()
+    {
+
+    }
 }

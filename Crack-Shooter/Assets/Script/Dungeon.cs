@@ -4,21 +4,26 @@ using UnityEngine;
 
 public class Dungeon : MonoBehaviour
 {
-    public const int MaxCharacter = 4;
-    public const int MaxMonster = 1;
+    public const int BattleCharacter = 4;
+    public const int BattleMonster = 3;
 
     private GameObject[] gMonster;
     private GameObject[] gCharacter;
 
+    private int iCurrentMonster;
+
 	public void Awake()
     {
-        gCharacter = new GameObject[MaxCharacter];
-        gMonster = new GameObject[MaxMonster];
+        gCharacter = new GameObject[BattleCharacter];
+        gMonster = new GameObject[BattleMonster];
 
         CreateWall();
 
         InitObject();
         SetObject();
+
+        iCurrentMonster = 0;
+        CallCurrentMonster();
     }
 
     // Method
@@ -39,7 +44,7 @@ public class Dungeon : MonoBehaviour
 
     private void InitObject()
     {
-        for (int i = 0; i < MaxCharacter; i++)
+        for (int i = 0; i < BattleCharacter; i++)
         {
             gCharacter[i] = Resources.Load("Object/Character") as GameObject;
             gCharacter[i] = Instantiate(gCharacter[i], this.gameObject.transform);
@@ -58,30 +63,47 @@ public class Dungeon : MonoBehaviour
             gCharacter[i].GetComponent<SpriteRenderer>().flipX = bCharFlip;
         }
 
-        for (int i = 0; i < MaxMonster; i++)
+        for (int i = 0; i < BattleMonster; i++)
         {
             gMonster[i] = Resources.Load("Object/Monster") as GameObject;
             gMonster[i] = Instantiate(gMonster[i], this.gameObject.transform);
-            gMonster[i].GetComponent<SpriteRenderer>().sortingOrder = 1;
-            gMonster[i].GetComponent<Monster>().Init();
+            gMonster[i].gameObject.SetActive(false);
         }
         return;
     }
 
     private void SetObject()
     {
-        for (int i = 0; i < MaxMonster; i++)
+        for (int i = 0; i < BattleMonster; i++)
         {
             gMonster[i].GetComponent<Monster>().SetCharacter(gCharacter);
+            gMonster[i].GetComponent<Monster>().SetDungeon(this);
         }
-        for (int i = 0; i < MaxCharacter; i++)
+        for (int i = 0; i < BattleCharacter; i++)
         {
-            gCharacter[i].GetComponent<Character>().SetMonster(gMonster[0]);
+            gCharacter[i].GetComponent<Character>().SetMonster(gMonster[iCurrentMonster]);
             gCharacter[i].GetComponent<Character>().SetCharacter(gCharacter);
         }
         return;
     }
 
+    public void CallCurrentMonster()
+    {
+        gMonster[iCurrentMonster].GetComponent<Monster>().Init();
+        gMonster[iCurrentMonster].gameObject.SetActive(true);
+    }
+
+    public void CallNextMonster()
+    {
+        iCurrentMonster++;
+        if (iCurrentMonster >= BattleMonster)
+            return;
+
+        CallCurrentMonster();
+
+        for (int i = 0; i < BattleCharacter; i++)
+            gCharacter[i].GetComponent<Character>().SetMonster(gMonster[iCurrentMonster]);
+    }
     // -- Set --
 
     public void SetMonster(GameObject[] gMonster)

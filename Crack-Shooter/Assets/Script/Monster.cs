@@ -13,6 +13,7 @@ public class Monster : MonoBehaviour
 {
     private MonsterStatus cStatus;
     private GameObject[] gCharacter;
+    private Dungeon cDungeon;
 
     private float fDistance;
     private bool[] bCanAttack;
@@ -21,13 +22,13 @@ public class Monster : MonoBehaviour
     {
         cStatus = new MonsterStatus();
 
-        cStatus.iMaxHp = 100;
+        cStatus.iMaxHp = 50;
         cStatus.iHp = cStatus.iMaxHp;
         cStatus.iAtk = 10;
         cStatus.fSpeed = 1;
         cStatus.fStrikeRange = 2.0f;
 
-        bCanAttack = new bool[Dungeon.MaxCharacter];
+        bCanAttack = new bool[Dungeon.BattleCharacter];
     }
 
     private void Update()
@@ -36,14 +37,14 @@ public class Monster : MonoBehaviour
         AttackFunc();
 
         if (cStatus.iHp <= 0)
-            this.gameObject.SetActive(false);
+            Death();
     }
     
     // Method
     
     private void AttackFunc()
     {
-        for (int i = 0; i < Dungeon.MaxCharacter; i++)
+        for (int i = 0; i < Dungeon.BattleCharacter; i++)
         {
             fDistance = Vector2.Distance(this.transform.position, gCharacter[i].transform.position);
             if (fDistance > 1.5f)
@@ -66,7 +67,7 @@ public class Monster : MonoBehaviour
     {
         if (this.transform.position.y <= -8.0f)
         {
-            for (int i = 0; i < Dungeon.MaxCharacter; i++)
+            for (int i = 0; i < Dungeon.BattleCharacter; i++)
             {
                 int iCurrentMaxHp = gCharacter[i].GetComponent<Character>().GetStatus().iMaxHp;
                 int iCurrentCount = gCharacter[i].GetComponent<Character>().GetStatus().iDeathCount;
@@ -84,6 +85,14 @@ public class Monster : MonoBehaviour
         }
     }
 
+    private void Death()
+    {
+        cDungeon.CallNextMonster();
+
+        this.gameObject.SetActive(false);
+        return;
+    }
+
     // -- Get --
 
     public MonsterStatus GetStatus()
@@ -96,5 +105,10 @@ public class Monster : MonoBehaviour
     public void SetCharacter(GameObject[] gCharacter)
     {
         this.gCharacter = gCharacter;
+    }
+
+    public void SetDungeon(Dungeon cDungeon)
+    {
+        this.cDungeon = cDungeon;
     }
 }

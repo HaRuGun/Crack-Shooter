@@ -7,15 +7,16 @@ public class Dungeon : MonoBehaviour
     public const int BattleCharacter = 4;
     public const int BattleMonster = 3;
 
-    private GameObject[] gMonster;
-    private GameObject[] gCharacter;
+    [SerializeField]
+    private Character[] gCharacter;
+    private Monster[] gMonster;
 
     private int iCurrentMonster;
 
 	public void Awake()
     {
-        gCharacter = new GameObject[BattleCharacter];
-        gMonster = new GameObject[BattleMonster];
+        gCharacter = new Character[BattleCharacter];
+        gMonster = new Monster[BattleMonster];
 
         CreateWall();
 
@@ -46,9 +47,8 @@ public class Dungeon : MonoBehaviour
     {
         for (int i = 0; i < BattleCharacter; i++)
         {
-            gCharacter[i] = Resources.Load("Object/Character") as GameObject;
-            gCharacter[i] = Instantiate(gCharacter[i], this.gameObject.transform);
-            gCharacter[i].GetComponent<Character>().Init();
+            //gCharacter[i] = Resources.Load("Object/Character") as Character;
+            gCharacter[i] = Instantiate<GameObject>(Resources.Load("Object/Character") as GameObject, this.gameObject.transform).GetComponent<Character>();
 
             Vector2 vCharPos = new Vector2(0.0f, 0.0f);
             bool bCharFlip = false;
@@ -61,12 +61,13 @@ public class Dungeon : MonoBehaviour
             }
             gCharacter[i].GetComponent<Transform>().Translate(vCharPos);
             gCharacter[i].GetComponent<SpriteRenderer>().flipX = bCharFlip;
+            gCharacter[i].gameObject.SetActive(true);
         }
 
         for (int i = 0; i < BattleMonster; i++)
         {
-            gMonster[i] = Resources.Load("Object/Monster") as GameObject;
-            gMonster[i] = Instantiate(gMonster[i], this.gameObject.transform);
+            //gMonster[i] = Resources.Load("Object/Monster") as Monster;
+            gMonster[i] = Instantiate<GameObject>(Resources.Load("Object/Monster") as GameObject, this.gameObject.transform).GetComponent<Monster>();
             gMonster[i].gameObject.SetActive(false);
         }
         return;
@@ -76,20 +77,24 @@ public class Dungeon : MonoBehaviour
     {
         for (int i = 0; i < BattleMonster; i++)
         {
-            gMonster[i].GetComponent<Monster>().SetCharacter(gCharacter);
-            gMonster[i].GetComponent<Monster>().SetDungeon(this);
+            gMonster[i].SetCharacter(gCharacter);
+            gMonster[i].SetDungeon(this);
         }
         for (int i = 0; i < BattleCharacter; i++)
         {
-            gCharacter[i].GetComponent<Character>().SetMonster(gMonster[iCurrentMonster]);
-            gCharacter[i].GetComponent<Character>().SetCharacter(gCharacter);
+            gCharacter[i].SetMonster(gMonster[iCurrentMonster]);
+            gCharacter[i].SetCharacter(gCharacter);
+            gCharacter[i].Init();
         }
+
+        for (int i = 0; i < BattleCharacter; i++)
+            gCharacter[i].Passive();
         return;
     }
 
     public void CallCurrentMonster()
     {
-        gMonster[iCurrentMonster].GetComponent<Monster>().Init();
+        gMonster[iCurrentMonster].Init();
         gMonster[iCurrentMonster].gameObject.SetActive(true);
     }
 
@@ -102,16 +107,16 @@ public class Dungeon : MonoBehaviour
         CallCurrentMonster();
 
         for (int i = 0; i < BattleCharacter; i++)
-            gCharacter[i].GetComponent<Character>().SetMonster(gMonster[iCurrentMonster]);
+            gCharacter[i].SetMonster(gMonster[iCurrentMonster]);
     }
     // -- Set --
 
-    public void SetMonster(GameObject[] gMonster)
+    public void SetMonster(Monster[] gMonster)
     {
         this.gMonster = gMonster;
     }
 
-    public void SetCharacter(GameObject[] gCharacter)
+    public void SetCharacter(Character[] gCharacter)
     {
         this.gCharacter = gCharacter;
     }

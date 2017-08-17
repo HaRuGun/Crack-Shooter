@@ -2,9 +2,9 @@
 
 public class MonsterStatus
 {
-    public int iHp;
+    public float fHp;
     public int iMaxHp;
-    public int iAtk;
+    public float fAtk;
     public float fSpeed;
     public float fStrikeRange;
 }
@@ -12,7 +12,7 @@ public class MonsterStatus
 public class Monster : MonoBehaviour
 {
     private MonsterStatus cStatus;
-    private GameObject[] gCharacter;
+    private Character[] gCharacter;
     private Dungeon cDungeon;
 
     private float fDistance;
@@ -23,8 +23,8 @@ public class Monster : MonoBehaviour
         cStatus = new MonsterStatus();
 
         cStatus.iMaxHp = 50;
-        cStatus.iHp = cStatus.iMaxHp;
-        cStatus.iAtk = 10;
+        cStatus.fHp = cStatus.iMaxHp;
+        cStatus.fAtk = 10;
         cStatus.fSpeed = 1;
         cStatus.fStrikeRange = 2.0f;
 
@@ -36,7 +36,7 @@ public class Monster : MonoBehaviour
         DropBall();
         AttackFunc();
 
-        if (cStatus.iHp <= 0)
+        if (cStatus.fHp <= 0)
             Death();
     }
     
@@ -56,8 +56,8 @@ public class Monster : MonoBehaviour
                 if (!bCanAttack[i])
                     continue;
 
-                gCharacter[i].GetComponent<Character>().GetStatus().iHp -= cStatus.iAtk;
-                Debug.Log("Character(" + i.ToString() + ") : " + gCharacter[i].GetComponent<Character>().GetStatus().iHp.ToString());
+                gCharacter[i].GetStatus().fHp -= (int)cStatus.fAtk;
+                Debug.Log("Character(" + i.ToString() + ") : " + gCharacter[i].GetStatus().fHp.ToString());
                 bCanAttack[i] = false;
             }
         }
@@ -69,15 +69,15 @@ public class Monster : MonoBehaviour
         {
             for (int i = 0; i < Dungeon.BattleCharacter; i++)
             {
-                int iCurrentMaxHp = gCharacter[i].GetComponent<Character>().GetStatus().iMaxHp;
-                int iCurrentCount = gCharacter[i].GetComponent<Character>().GetStatus().iDeathCount;
+                int iCurrentMaxHp = gCharacter[i].GetStatus().iMaxHp;
+                int iCurrentCount = gCharacter[i].GetStatus().iDeathCount;
 
                 iCurrentMaxHp -= iCurrentMaxHp / iCurrentCount;
 
-                gCharacter[i].GetComponent<Character>().GetStatus().iMaxHp = iCurrentMaxHp;
-                gCharacter[i].GetComponent<Character>().GetStatus().iDeathCount -= 1;
+                gCharacter[i].GetStatus().iMaxHp = iCurrentMaxHp;
+                gCharacter[i].GetStatus().iDeathCount -= 1;
 
-                Debug.Log("Character(" + i.ToString() + ") : " + gCharacter[i].GetComponent<Character>().GetStatus().iHp.ToString());
+                Debug.Log("Character(" + i.ToString() + ") : " + gCharacter[i].GetStatus().fHp.ToString());
             }
 
             this.transform.position = new Vector2(0.0f, 8.0f);
@@ -102,7 +102,7 @@ public class Monster : MonoBehaviour
 
     // -- Set --
 
-    public void SetCharacter(GameObject[] gCharacter)
+    public void SetCharacter(Character[] gCharacter)
     {
         this.gCharacter = gCharacter;
     }

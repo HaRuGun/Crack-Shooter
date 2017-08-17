@@ -2,10 +2,10 @@
 
 public class CharacterStatus
 {
-    public int iHp;
+    public float fHp;
     public int iMaxHp;
-    public int iAtk;
-    public int iRange;
+    public float fAtk;
+    public int iRangeType;
     public float fPower;
     public float fDelay;
     public float fCritical;
@@ -15,55 +15,47 @@ public class CharacterStatus
 
 public class Character : MonoBehaviour
 {
-    private CharacterStatus cStatus;
-    private GameObject gMonster;
-    private GameObject[] gCharacter;
+    protected CharacterStatus cStatus;
+    protected Monster gMonster;
+    protected Character[] gCharacter;
 
-    private float fDistance;
-    private Vector2 vAngle;
+    protected float fDistance;
+    protected Vector2 vAngle;
 
-    private float fCharging = 0.0f;
-    private bool bIsCharge = false;
-    private float fCurrentDelay = 0.0f;
-    private bool bCanAttack = true;
+    protected float fCharging = 0.0f;
+    protected bool bIsCharge = false;
+    protected float fCurrentDelay = 0.0f;
+    protected bool bCanAttack = true;
 
     public void Init()
     {
         cStatus = new CharacterStatus();
-
-        cStatus.iMaxHp = 100;
-        cStatus.iHp = cStatus.iMaxHp;
-        cStatus.iAtk = 10;
-        cStatus.iRange = 1;
-        cStatus.fPower = 1.0f;
-        cStatus.fDelay = 2.0f;
-        cStatus.fCritical = 0.05f;
-
+        InitStatus();
         cStatus.iDeathCount = 4;
     }
 
-    private void Update()
+    public void Update()
     {
         AttackCheck();
 
-        if (cStatus.iMaxHp <= 0 || cStatus.iHp <= 0)
+        if (cStatus.iMaxHp <= 0 || cStatus.fHp <= 0)
             this.gameObject.SetActive(false);
-        if (cStatus.iHp > cStatus.iMaxHp)
-            cStatus.iHp = cStatus.iMaxHp;
+        if (cStatus.fHp > cStatus.iMaxHp)
+            cStatus.fHp = cStatus.iMaxHp;
     }
 
-    private void OnMouseDown()
+    protected void OnMouseDown()
     {
-        AttackFunc(cStatus.iRange);
+        AttackFunc(cStatus.iRangeType);
     }
 
-    private void OnMouseDrag()
+    protected void OnMouseDrag()
     {
         bIsCharge = true;
         fCharging += 0.1f;
     }
 
-    private void OnMouseUp()
+    protected void OnMouseUp()
     {
         bIsCharge = false;
         fCharging = 0.0f;
@@ -71,25 +63,36 @@ public class Character : MonoBehaviour
 
     // -- Method --
 
-    public virtual void ShortAttack()
+    protected virtual void InitStatus()
+    {
+        cStatus.iMaxHp = 100;
+        cStatus.fHp = cStatus.iMaxHp;
+        cStatus.fAtk = 10;
+        cStatus.iRangeType = 1;
+        cStatus.fPower = 1.0f;
+        cStatus.fDelay = 2.0f;
+        cStatus.fCritical = 0.05f;
+    }
+
+    protected virtual void ShortAttack()
     {
         if (fDistance <= 2)
             gMonster.GetComponent<Rigidbody2D>().AddForce(vAngle * 1000 * cStatus.fPower);
     }
 
-    public virtual void MiddleAttack()
+    protected virtual void MiddleAttack()
     {
         if (fDistance <= 4)
             gMonster.GetComponent<Rigidbody2D>().AddForce(vAngle * 750 * cStatus.fPower);
     }
 
-    public virtual void LongAttack()
+    protected virtual void LongAttack()
     {
         if (fDistance <= 6)
-            gMonster.GetComponent<Rigidbody2D>().AddForce(vAngle * 10 * cStatus.fPower);
+            gMonster.GetComponent<Rigidbody2D>().AddForce(vAngle * 100 * cStatus.fPower);
     }
-    
-    private void AttackCheck()
+
+    protected void AttackCheck()
     {
         if (!bCanAttack)
         {
@@ -102,7 +105,7 @@ public class Character : MonoBehaviour
         }
     }
 
-    private void AttackFunc(int iRange)
+    protected void AttackFunc(int iRangeType)
     {
         if (!bCanAttack)
             return;
@@ -111,17 +114,33 @@ public class Character : MonoBehaviour
         vAngle = gMonster.transform.position - this.transform.position;
         vAngle.Normalize();
 
-        switch (iRange)
+        switch (iRangeType)
         {
             case 1: ShortAttack(); break;
             case 2: MiddleAttack(); break;
             case 3: LongAttack(); break;
         }
 
-        gMonster.GetComponent<Monster>().GetStatus().iHp -= cStatus.iAtk;
-        Debug.Log("Monster : " + gMonster.GetComponent<Monster>().GetStatus().iHp.ToString());
+        gMonster.GetStatus().fHp -= cStatus.fAtk;
+        Debug.Log("Monster : " + gMonster.GetStatus().fHp.ToString());
         bCanAttack = false;
     }
+
+    public void Passive()
+    {
+        PassiveA();
+        PassiveB();
+        PassiveC();
+    }
+
+
+    // -- Skill --
+    protected virtual void ActiceA() { }
+    protected virtual void ActiceB() { }
+    protected virtual void ActiceC() { }
+    protected virtual void PassiveA() { }
+    protected virtual void PassiveB() { }
+    protected virtual void PassiveC() { }
 
     // -- Get --
 
@@ -132,12 +151,12 @@ public class Character : MonoBehaviour
 
     // -- Set --
 
-    public void SetMonster(GameObject gMonster)
+    public void SetMonster(Monster gMonster)
     {
         this.gMonster = gMonster;
     }
 
-    public void SetCharacter(GameObject[] gCharacter)
+    public void SetCharacter(Character[] gCharacter)
     {
         this.gCharacter = gCharacter;
     }
